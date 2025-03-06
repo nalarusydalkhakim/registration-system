@@ -45,33 +45,33 @@ class AuthController extends Controller
         ], 200);
     }
 
-    // public function requestPasswordReset(EmailCheckRequest $request)
-    // {
-    //     try {
-    //         $executed = RateLimiter::attempt(
-    //             'send-email-reset:' . $request->get('email'),
-    //             2,
-    //             function () use ($request) {
-    //                 $user = User::where('email', $request->get('email'))->first();
-    //                 event(new RequestPasswordReset($user));
-    //             }
-    //         );
+    public function requestPasswordReset(EmailCheckRequest $request)
+    {
+        try {
+            $executed = RateLimiter::attempt(
+                'send-email-reset:' . $request->get('email'),
+                2,
+                function () use ($request) {
+                    $user = User::where('email', $request->get('email'))->first();
+                    event(new RequestPasswordReset($user));
+                }
+            );
 
-    //         if (! $executed) {
-    //             return $this->error('Percobaan terlalu banyak', 422, ['email' => ['Percobaan terlalu banyak, silahkan coba kembali 1 menit kemudian']]);
-    //         }
-    //         return $this->ok([], 'Berhasil mengirim kode, Silahkan cek email Anda.');
-    //     } catch (\Throwable $th) {
-    //         return $this->error('Gagal mengirim token', 500);
-    //     }
-    // }
+            if (! $executed) {
+                return $this->error('Percobaan terlalu banyak', 422, ['email' => ['Percobaan terlalu banyak, silahkan coba kembali 1 menit kemudian']]);
+            }
+            return $this->ok([], 'Berhasil mengirim kode, Silahkan cek email Anda.');
+        } catch (\Throwable $th) {
+            return $this->error('Gagal mengirim token', 500);
+        }
+    }
 
-    // public function passwordReset(ResetPasswordRequest $request)
-    // {
-    //     $user = User::where('email', $request->get('email'))->first();
-    //     $user->password = Hash::make($request->password);
-    //     $user->save();
-    //     event(new PasswordReset($user));
-    //     return $this->ok([], 'Password anda berhasil direset. Silahkan login kembali');
-    // }
+    public function passwordReset(ResetPasswordRequest $request)
+    {
+        $user = User::where('email', $request->get('email'))->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+        event(new PasswordReset($user));
+        return $this->ok([], 'Password anda berhasil direset. Silahkan login kembali');
+    }
 }
